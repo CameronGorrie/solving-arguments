@@ -1,0 +1,17 @@
+{
+  "name": "news-comment-sentiment-analysis",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc --outDir dist"
+  },
+  "dependencies": {
+    "@types/puppeteer": "^1.9.1",
+    "puppeteer": "^1.10.0"
+  },
+  "devDependencies": {
+    "tslint": "^5.11.0",
+    "typescript": "^3.1.6"
+  }
+}
