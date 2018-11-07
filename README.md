@@ -1,10 +1,6 @@
-- scrape multiple website article comment sections and create a data structure like the following:
-
-```
-const commentsBySource = [
-  {source01: [comment1, comment2, ...]},
-  {source02: [comment1, comment2, ...]},
-]
-```
-
+- make init fn generic
+- make extractText generic
+- make comment scraper handle multiple sites
+- sanitize comment strings
+- scrape comments iterates over article uri list
 - run sentiment analysis on each source and return an aggregate score

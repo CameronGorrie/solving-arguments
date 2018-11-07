@@ -53,7 +53,7 @@ async function getComments(page: Page, delay: number = 1000) {
   }
 }
 
-async function commentScraper(articleUri: string) {
+export async function scrapeComments(articleUri: string) {
   const browser = await launch({
     devtools: true,
     headless: false
@@ -64,10 +64,3 @@ async function commentScraper(articleUri: string) {
   await browser.close();
   return comments;
 }
-
-(async () => {
-  const foo = await commentScraper(
-    "https://www.cbc.ca/news/politics/grenier-us-midterms-1.4889682"
-  );
-  console.log(foo);
-})();
