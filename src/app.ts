@@ -7,7 +7,8 @@ import { scrapeArticleUris, scrapeComments } from "./utilities";
   ]);
 
   const bar = await scrapeComments(
-    "https://www.cbc.ca/news/politics/grenier-us-midterms-1.4889682"
+    "https://www.cbc.ca/news/politics/grenier-us-midterms-1.4889682",
+    ".vf-comment-html"
   );
 
   console.log(foo, bar);

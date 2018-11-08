@@ -1,23 +1,22 @@
-import { launch, Page } from "puppeteer";
+import { Page } from "puppeteer";
+import { extractText, scraper } from "../utilities";
 
 interface CommentMetaData {
   nodes: NodeListOf<Element>;
   length: number;
 }
 
-function getCommentMetaData(): CommentMetaData {
-  const nodes = document.querySelectorAll(".vf-comment-html");
-  return {
-    length: nodes.length,
-    nodes
-  };
-}
-
-function extractComments() {
-  const comments: string[] = [];
-  const commentHandles = document.querySelectorAll(".vf-comment-html");
-  commentHandles.forEach(comment => comments.push(comment.innerHTML));
-  return comments;
+function getCommentMetaData(
+  page: Page,
+  selector: string
+): Promise<CommentMetaData> {
+  return page.evaluate(el => {
+    const nodes = document.querySelectorAll(el);
+    return {
+      length: nodes.length,
+      nodes
+    };
+  }, selector);
 }
 
 function loadMoreComments() {
@@ -30,37 +29,27 @@ function loadMoreComments() {
   }
 }
 
-async function getComments(page: Page, delay: number = 1000) {
+async function getComments(page: Page, selector: string) {
   try {
-    await page.waitFor(delay);
-
-    async function commentIter(
+    async function crawl(
       commentLength: number = 0,
       counter: number = 0
     ): Promise<string[]> {
       if (commentLength >= 100 || counter > 100) {
-        return page.evaluate(extractComments);
+        return extractText(page, selector);
       } else {
-        const { length } = await page.evaluate(getCommentMetaData);
+        const { length } = await getCommentMetaData(page, selector);
         await page.evaluate(loadMoreComments);
-        return commentIter(length, counter++);
+        return crawl(length, counter++);
       }
     }
 
-    return await commentIter();
+    return await crawl();
   } catch (err) {
     throw new Error(`Encountered problem fetching comments: ${err}`);
   }
 }
 
-export async function scrapeComments(articleUri: string) {
-  const browser = await launch({
-    devtools: true,
-    headless: false
-  });
-  const page = await browser.newPage();
-  await page.goto(articleUri);
-  const comments = await getComments(page);
-  await browser.close();
-  return comments;
+export async function scrapeComments(articleUri: string, selector: string) {
+  return scraper(articleUri, getComments, selector);
 }

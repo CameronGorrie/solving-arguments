@@ -1,6 +1,5 @@
-- make init fn generic
-- make extractText generic
-- make comment scraper handle multiple sites
+- create selector interface {articleUri, comment, loadMore}
+- refactor load more comments
 - sanitize comment strings
 - scrape comments iterates over article uri list
 - run sentiment analysis on each source and return an aggregate score
