@@ -1,46 +1,59 @@
 import { Page } from "puppeteer";
-import { extractText, scraper } from "../utilities";
+import { extractText, scraper, Selectors } from "../utilities";
 
-interface CommentMetaData {
-  nodes: NodeListOf<Element>;
-  length: number;
-}
-
-function getCommentMetaData(
-  page: Page,
-  selector: string
-): Promise<CommentMetaData> {
+function getCommentTotal(page: Page, selector: string) {
   return page.evaluate(el => {
-    const nodes = document.querySelectorAll(el);
-    return {
-      length: nodes.length,
-      nodes
-    };
+    const total: HTMLElement | null = document.querySelector(el);
+
+    if (total == null) {
+      throw new Error(
+        "Could not find a total comment count. Are you sure you passed the correct selector?"
+      );
+    } else {
+      return parseInt(total.innerText, 10);
+    }
   }, selector);
 }
 
-function loadMoreComments() {
-  const loadMoreButton: HTMLElement | null = document.querySelector(
-    ".vf-load-more"
-  );
-
-  if (loadMoreButton != null) {
-    loadMoreButton.click();
-  }
+function getVisibleCommentTotal(page: Page, selector: string) {
+  return page.evaluate(el => {
+    return document.querySelectorAll(el).length;
+  }, selector);
 }
 
-async function getComments(page: Page, selector: string) {
+async function loadMoreComments(
+  page: Page,
+  loadMore: string,
+  loadReplies: string
+) {
+  await page.waitFor(1000);
+
+  return page.evaluate(
+    ([more, replies]) => {
+      const loadMoreButton = document.querySelector(more);
+      loadMoreButton.click();
+
+      const loadReplyButtons = document.querySelectorAll(replies);
+      loadReplyButtons.forEach(button => button.click());
+    },
+    [loadMore, loadReplies]
+  );
+}
+
+async function getComments(
+  page: Page,
+  { handle, commentTotal, loadMore, loadReplies }: Selectors
+) {
+  const total = await getCommentTotal(page, commentTotal);
+
   try {
-    async function crawl(
-      commentLength: number = 0,
-      counter: number = 0
-    ): Promise<string[]> {
-      if (commentLength >= 100 || counter > 100) {
-        return extractText(page, selector);
+    async function crawl(currentCommentsTotal: number = 0): Promise<string[]> {
+      if (currentCommentsTotal >= total) {
+        return extractText(page, handle);
       } else {
-        const { length } = await getCommentMetaData(page, selector);
-        await page.evaluate(loadMoreComments);
-        return crawl(length, counter++);
+        await loadMoreComments(page, loadMore, loadReplies);
+        const commentsLength = await getVisibleCommentTotal(page, handle);
+        return crawl(commentsLength);
       }
     }
 
@@ -50,6 +63,6 @@ async function getComments(page: Page, selector: string) {
   }
 }
 
-export async function scrapeComments(articleUri: string, selector: string) {
-  return scraper(articleUri, getComments, selector);
+export async function scrapeComments(articleUri: string, selectors: Selectors) {
+  return scraper(articleUri, getComments, selectors);
 }

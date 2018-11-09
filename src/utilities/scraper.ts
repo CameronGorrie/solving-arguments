@@ -2,8 +2,8 @@ import { launch, Page } from "puppeteer";
 
 export async function scraper<T>(
   uri: string,
-  cb: (page: Page, selector: string) => Promise<T>,
-  selector: string
+  cb: (page: Page, selectors: T) => Promise<any>,
+  selectors: T
 ) {
   const browser = await launch({
     devtools: true,
@@ -11,7 +11,7 @@ export async function scraper<T>(
   });
   const page = await browser.newPage();
   await page.goto(uri);
-  const data = await cb(page, selector);
+  const data = await cb(page, selectors);
   await browser.close();
   return data;
 }

@@ -4,10 +4,16 @@ export async function extractText(
   page: Page,
   selector: string
 ): Promise<string[]> {
-  return page.evaluate(el => {
+  return page.evaluate((el: string) => {
     const text: string[] = [];
-    const textHandles: NodeListOf<HTMLElement> = document.querySelectorAll(el);
-    textHandles.forEach(item => text.push(item.innerText));
+    const nodes: NodeListOf<HTMLElement> = document.querySelectorAll(el);
+    nodes.forEach(node => {
+      const userName = /@([^\s]+\s+[^\s]+\s)/g;
+      const sanitizedText = node.innerText
+        .replace(userName, "")
+        .replace(/\n/g, " ");
+      return text.push(sanitizedText);
+    });
     return text;
   }, selector);
 }
