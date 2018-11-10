@@ -1,2 +1,4 @@
-- scrape comments iterates over article uri list
+- close the browser on error
+- pass the selector config to scrapeComments
+  - use the site slug i.e. cbc to get the config keys {handle: slug.handle}
 - run sentiment analysis on each source and return an aggregate score

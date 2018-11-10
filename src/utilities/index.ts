@@ -3,4 +3,4 @@ export { scraper } from "./scraper";
 export { scrapeArticleUris } from "./articles";
 export { scrapeComments } from "./comments";
 
-export { Selectors } from "./types";
+export { ArticleData, Selectors } from "./types";

@@ -42,13 +42,14 @@ async function loadMoreComments(
 
 async function getComments(
   page: Page,
-  { handle, commentTotal, loadMore, loadReplies }: Selectors
+  { handle, commentTotal, loadMore, loadReplies }: Selectors,
+  limit: number = 10
 ) {
   const total = await getCommentTotal(page, commentTotal);
 
   try {
     async function crawl(currentCommentsTotal: number = 0): Promise<string[]> {
-      if (currentCommentsTotal >= total) {
+      if (currentCommentsTotal >= total || currentCommentsTotal >= limit) {
         return extractText(page, handle);
       } else {
         await loadMoreComments(page, loadMore, loadReplies);
@@ -63,6 +64,11 @@ async function getComments(
   }
 }
 
-export async function scrapeComments(articleUri: string, selectors: Selectors) {
-  return scraper(articleUri, getComments, selectors);
+export async function scrapeComments(
+  articleUris: string[],
+  selectors: Selectors
+): Promise<string[]> {
+  const comments = articleUris.map(uri => scraper(uri, getComments, selectors));
+  const resolvedComments = await Promise.all(comments);
+  return [...resolvedComments];
 }
