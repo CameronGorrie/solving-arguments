@@ -1,16 +1,15 @@
 import { Page } from "puppeteer";
-import { extractText, scraper, Selectors } from "../utilities";
+import { extractText, Selectors } from "../scraper";
 
-function getCommentTotal(page: Page, selector: string) {
+async function getCommentTotal(page: Page, selector: string): Promise<number> {
   return page.evaluate(el => {
+    const regex = /\D+/;
     const total: HTMLElement | null = document.querySelector(el);
 
     if (total == null) {
-      throw new Error(
-        "Could not find a total comment count. Are you sure you passed the correct selector?"
-      );
+      return 0;
     } else {
-      return parseInt(total.innerText, 10);
+      return parseInt(total.innerText.replace(regex, ""), 10);
     }
   }, selector);
 }
@@ -40,15 +39,17 @@ async function loadMoreComments(
   );
 }
 
-async function getComments(
+export async function scrapeComments(
   page: Page,
   { handle, commentTotal, loadMore, loadReplies }: Selectors,
-  limit: number = 10
+  limit: number = 2
 ) {
   const total = await getCommentTotal(page, commentTotal);
 
   try {
-    async function crawl(currentCommentsTotal: number = 0): Promise<string[]> {
+    return (async function crawl(
+      currentCommentsTotal: number = 0
+    ): Promise<string[]> {
       if (currentCommentsTotal >= total || currentCommentsTotal >= limit) {
         return extractText(page, handle);
       } else {
@@ -56,19 +57,8 @@ async function getComments(
         const commentsLength = await getVisibleCommentTotal(page, handle);
         return crawl(commentsLength);
       }
-    }
-
-    return await crawl();
+    })();
   } catch (err) {
     throw new Error(`Encountered problem fetching comments: ${err}`);
   }
-}
-
-export async function scrapeComments(
-  articleUris: string[],
-  selectors: Selectors
-): Promise<string[]> {
-  const comments = articleUris.map(uri => scraper(uri, getComments, selectors));
-  const resolvedComments = await Promise.all(comments);
-  return [...resolvedComments];
 }

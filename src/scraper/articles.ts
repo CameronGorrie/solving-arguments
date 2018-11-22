@@ -1,17 +1,20 @@
-import { ArticleData, extractText, scraper } from "../utilities";
+import { Browser } from "puppeteer";
+import { ArticleData, extractText, scraper } from "../scraper";
 
 export async function scrapeArticleUris(
   queries: string[],
   selector: string,
-  limit: number = 10
+  browser: Browser,
+  limit: number = 5
 ): Promise<ArticleData> {
   return queries.reduce(
     async (prevPromise: Promise<ArticleData>, query: string) => {
       const acc = await prevPromise;
       acc[query] = await scraper(
-        `https://www.google.com/search?q=${query}&gws_rd=ssl&num=${limit}`,
+        `https://www.google.com/search?q=${query}&num=${limit}&start=10`,
         extractText,
-        selector
+        selector,
+        browser
       );
       return acc;
     },
