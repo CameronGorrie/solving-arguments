@@ -1,1 +1,1 @@
-- run sentiment analysis on each source and return an aggregate score
+Helping friends win arguments on the internet

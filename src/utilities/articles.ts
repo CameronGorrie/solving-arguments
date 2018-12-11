@@ -1,5 +1,6 @@
 import { Browser } from "puppeteer";
-import { ArticleData, extractText, scraper } from "../scraper";
+import { ArticleData } from "../types";
+import { extractText, scraper } from "../utilities";
 
 export async function scrapeArticleUris(
   queries: string[],

@@ -1,16 +1,16 @@
-import { Selectors } from "./types";
+import { Selectors } from "../types";
 
 interface Sites {
   [key: string]: Selectors;
 }
 
 export const config: Sites = {
-  // breitbart: {
-  //   commentTotal: ".comment-count",
-  //   handle: ".post-message",
-  //   loadMore: ".load-more",
-  //   loadReplies: ".realtime-button"
-  // },
+  breitbart: {
+    commentTotal: ".comment-count",
+    handle: ".post-message",
+    loadMore: ".load-more",
+    loadReplies: ".realtime-button"
+  },
   cbc: {
     commentTotal: ".vf-counter",
     handle: ".vf-comment-html",

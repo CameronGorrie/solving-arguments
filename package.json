@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "@types/puppeteer": "^1.9.1",
-    "puppeteer": "^1.10.0"
+    "puppeteer": "^1.10.0",
+    "sentiment": "^5.0.1"
   },
   "devDependencies": {
     "rollup": "^0.67.0",
